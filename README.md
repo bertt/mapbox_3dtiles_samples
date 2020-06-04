@@ -12,6 +12,10 @@ https://bertt.github.io/mapbox_3dtiles_samples/index.html
 
 https://bertt.github.io/mapbox_3dtiles_samples/external.html
 
+- Demo MapBox GL JS + 3D tiles with glTF SpecularGlossiness shader
+
+https://bertt.github.io/mapbox_3dtiles_samples/specularglossiness.html
+
 - Demo MapBox GL JS + Draco compressed 3D Tiles (not working yet)
 
 https://bertt.github.io/mapbox_3dtiles_samples/draco.html
