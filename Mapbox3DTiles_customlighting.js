@@ -594,41 +594,37 @@ var Mapbox3DTiles = (function () {
       if (!params) throw new Error('parameters missing for mapbox 3D tiles layer');
       if (!params.id) throw new Error('id parameter missing for mapbox 3D tiles layer');
       //if (!params.url) throw new Error('url parameter missing for mapbox 3D tiles layer');
+      if (!params.lighting) throw new Error('lighting parameter missing for mapbox 3D tiles layer');
       
       this.id = params.id,
-      this.url = params.url;
+      this.url = params.url,
+      this.lighting = params.lighting;
       this.styleParams = {};
       if ('color' in params) this.styleParams.color = params.color;
       if ('opacity' in params) this.styleParams.opacity = params.opacity;
       if ('pointsize' in params) this.styleParams.pointsize = params.pointsize;
-
       this.loadStatus = 0;
       this.viewProjectionMatrix = null;
       
       this.type = 'custom';
       this.renderingMode = '3d';
     }
+    
     LightsArray() {
       const arr = [];
-      // let directionalLight1 = new THREE.DirectionalLight(0xffffff);
-      // directionalLight1.position.set(0.5, 1, 0.5).normalize();
-      // let target = directionalLight1.target.position.set(100000000, 1000000000, 0).normalize();
-      // arr.push(directionalLight1);
-
-      // let directionalLight2 = new THREE.DirectionalLight(0xffffff);
-      // //directionalLight2.position.set(0, 70, 100).normalize();
-      // directionalLight2.position.set(0.3, 0.3, 1).normalize();
-      // arr.push(directionalLight2);
-
       let ambientLight1 = new THREE.AmbientLight(0xffffff);
-      arr.push(ambientLight1);
 
-      //arr.push(new THREE.DirectionalLightHelper( directionalLight1, 500));
-      //arr.push(new THREE.DirectionalLightHelper( directionalLight2, 500));     
+      let directionalLight1 = new THREE.DirectionalLight(0xffffff);
+      directionalLight1.position.set(0.5, 1, 0.5).normalize();
+      let directionalLight2 = new THREE.DirectionalLight(0xffffff);
+      directionalLight2.position.set(0.3, 0.3, 1).normalize();
 
-            //this.scene.background = new THREE.Color( 0xaaaaaa );
-            //this.scene.add( new THREE.DirectionalLight() );
-            //this.scene.add( new THREE.HemisphereLight() );
+      let hemisphereLight1 = new THREE.HemisphereLight( 0xffffbb, 0x080820, 2 );
+
+      if (this.lighting == 'ambient') { arr.push(ambientLight1);
+      } else if (this.lighting == 'directional') { arr.push(directionalLight1,directionalLight2);
+      } else if (this.lighting == 'hemisphere') { arr.push(hemisphereLight1);
+      } else {console.log('change lighting to ambient, directional or hemisphere')}
       return arr;
     }
     loadVisibleTiles() {
