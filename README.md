@@ -16,9 +16,9 @@ https://bertt.github.io/mapbox_3dtiles_samples/external.html
 
 https://bertt.github.io/mapbox_3dtiles_samples/specularglossiness.html
 
-- Demo MapBox GL JS + 3D tiles with ambient light
+- Demo MapBox GL JS + lighting examples (ambient, hemisphere, directional) 
 
-https://bertt.github.io/mapbox_3dtiles_samples/ambient_emissive.html
+https://bertt.github.io/mapbox_3dtiles_samples/lighting_example.html
 
 - Demo MapBox GL JS + Draco compressed 3D Tiles (not working yet)
 
