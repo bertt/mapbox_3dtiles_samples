@@ -8,28 +8,28 @@ In these demo https://github.com/Geodan/mapbox-3dtiles is used for handling the 
 
 Demo MapBox GL JS + 3D Tiles Level of detail + attributes window from batching option
 
-https://bertt.github.io/mapbox_3dtiles_samples/lods/
+https://bertt.github.io/mapbox_3dtiles_samples/samples/lods
 
 - Demo MapBox GL JS + referencing external tilesets 
 
-https://bertt.github.io/mapbox_3dtiles_samples/external
+https://bertt.github.io/mapbox_3dtiles_samples/samples/external
 
 - Demo MapBox GL JS + 3D tiles with glTF SpecularGlossiness shader
 
-https://bertt.github.io/mapbox_3dtiles_samples/shaders
+https://bertt.github.io/mapbox_3dtiles_samples/samples/shaders
 
 - Demo MapBox GL JS + client side lighting examples (ambient, hemisphere, directional)
 
-https://bertt.github.io/mapbox_3dtiles_samples/lighting
+https://bertt.github.io/mapbox_3dtiles_samples/samples/lighting
 
 - Demo MapBox GL JS + 3D tiles with glTF animations
 
-https://bertt.github.io/mapbox_3dtiles_samples/animations
-
 Note: Visualizing glTF animations is not working yet :-(
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/animations
 
 - Demo MapBox GL JS + Draco compressed 3D Tiles 
 
 Note: Visualizing 3D Tiles with Draco compression is not working yet :-(
 
-https://bertt.github.io/mapbox_3dtiles_samples/draco.html
+https://bertt.github.io/mapbox_3dtiles_samples/samples/draco.html
