@@ -20,7 +20,7 @@
           },
         "geometricError": 500,
         "content": {
-          "uri": "../basic/tileset.json"
+          "uri": "../lods/tileset.json"
         }
       }
     ]
