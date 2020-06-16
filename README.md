@@ -18,6 +18,10 @@ https://bertt.github.io/mapbox_3dtiles_samples/external
 
 https://bertt.github.io/mapbox_3dtiles_samples/shaders
 
+- Demo MapBox GL JS + client side lighting examples (ambient, hemisphere, directional)
+
+https://bertt.github.io/mapbox_3dtiles_samples/lighting
+
 - Demo MapBox GL JS + 3D tiles with glTF animations
 
 https://bertt.github.io/mapbox_3dtiles_samples/animations
