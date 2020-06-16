@@ -138,7 +138,7 @@
              map2.on('style.load', function() {
                 let tileslayer = new Mapbox3DTiles.Layer( { 
                     id: 'delaware', 
-                    url: './tiles/specularglossiness/tileset.json',
+                    url: '../shaders/tileset.json',
                     lighting: 'hemisphere'
                 } );
                 map2.addLayer(tileslayer, 'waterway-label');
@@ -169,7 +169,7 @@
              map3.on('style.load', function() {
                 let tileslayer = new Mapbox3DTiles.Layer( { 
                     id: 'delaware', 
-                    url: './tiles/specularglossiness/tileset.json',
+                    url: '../shaders/tileset.json',
                     lighting: 'directional'
                 } );
                 map3.addLayer(tileslayer, 'waterway-label');
