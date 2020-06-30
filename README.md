@@ -33,3 +33,7 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/animations
 Note: Visualizing 3D Tiles with Draco compression is not working yet :-(
 
 https://bertt.github.io/mapbox_3dtiles_samples/samples/draco.html
+
+- Demo MapBox GL JS + instanced 3D TIles - not working yet :-(
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/instanced
