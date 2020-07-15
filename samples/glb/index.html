@@ -36,20 +36,12 @@
             var map = new mapboxgl.Map({
                 container: 'map',
                 style: 'mapbox://styles/mapbox/streets-v11',
-                center: [5.611016, 51.461917],
-                zoom: 15.29,
+                center: [ 5.598922, 51.462921],
+                zoom: 17.94,
                 bearing: 0,
-                pitch: 20,
+                pitch: 51,
                 hash: true
             });
-
-                // Woonconnect_1_2020_6_17
-                // locatie: 5.5981999, 51.4629160
-                // hoek:[Math.PI / 2, Math.PI*-0.005, 0]
-
-                /// Woonconnect_1_2020_7_9
-                // locatie: 5.5982910,51.4629150
-                // hoek: [Math.PI / 2, Math.PI*-0.005, 0]
 
              map.on('style.load', function() {
                 map.addLayer(woonconnect1Layer);

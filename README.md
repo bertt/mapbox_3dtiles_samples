@@ -28,6 +28,10 @@ Note: Visualizing glTF animations is not working yet :-(
 
 https://bertt.github.io/mapbox_3dtiles_samples/samples/animations
 
+- Demo MapBox GL JS + placement glb file (house converted from ifc)
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/glb
+
 - Demo MapBox GL JS + Draco compressed 3D Tiles 
 
 Note: Visualizing 3D Tiles with Draco compression is not working yet :-(
