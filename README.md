@@ -22,15 +22,19 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/shaders
 
 https://bertt.github.io/mapbox_3dtiles_samples/samples/lighting
 
+- Demo MapBox GL JS + placement glb file (house converted from ifc)
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/glb
+
+
+
+Not working demo's:
+
 - Demo MapBox GL JS + 3D tiles with glTF animations
 
 Note: Visualizing glTF animations is not working yet :-(
 
 https://bertt.github.io/mapbox_3dtiles_samples/samples/animations
-
-- Demo MapBox GL JS + placement glb file (house converted from ifc)
-
-https://bertt.github.io/mapbox_3dtiles_samples/samples/glb
 
 - Demo MapBox GL JS + Draco compressed 3D Tiles 
 
