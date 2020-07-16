@@ -35,7 +35,7 @@
 
             var map = new mapboxgl.Map({
                 container: 'map',
-                style: 'mapbox://styles/mapbox/dark-v10?optimize=true',
+                style: 'mapbox://styles/mapbox/streets-v11',
                 center: [5.5981999, 51.4629160],
                 zoom: 18,
                 bearing: 0,
@@ -43,11 +43,27 @@
                 hash: true
             });
              map.on('style.load', function() {
+                map.addSource('testW', {
+                    type: 'geojson',
+                    data: 'bsd_woningen.geojson'
+                });
+                map.addLayer({
+                    'id': 'Woningen',
+                    'type': 'line',
+                    'source': 'testW',
+                    'paint': {
+                        'line-color': '#ff0000',
+                        'line-width': 2,
+                        'line-opacity': 0.5
+                    }
+                });
+
                 let tileslayer = new Mapbox3DTiles.Layer( { 
-                    id: 'delaware', 
+                    id: '3d_models', 
                     url: 'tileset.json'
                 } );
                 map.addLayer(tileslayer, 'waterway-label');
+
             });
             map.on('mousemove', (event)=>{
                 let infoElement = document.querySelector('#info');
@@ -61,7 +77,7 @@
                 } else {
                     infoElement.innerHTML = "Hover map objects for info";
                 }
-            })
+            });
 
             </script>
     </body>
