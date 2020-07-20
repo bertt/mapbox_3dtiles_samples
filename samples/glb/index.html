@@ -56,14 +56,13 @@
                         'line-width': 2,
                         'line-opacity': 0.5
                     }
-                });
+                },'waterway-label');
 
                 let tileslayer = new Mapbox3DTiles.Layer( { 
                     id: '3d_models', 
                     url: 'tileset.json'
-                } );
-                map.addLayer(tileslayer, 'waterway-label');
-
+                }, 'waterway-label');
+                map.addLayer(tileslayer);
             });
             map.on('mousemove', (event)=>{
                 let infoElement = document.querySelector('#info');
