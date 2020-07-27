@@ -22,9 +22,9 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/shaders
 
 https://bertt.github.io/mapbox_3dtiles_samples/samples/lighting
 
-- Demo MapBox GL JS + placement glb file (house converted from ifc)
+- Demo MapBox GL JS + placement b3dm file (house converted from ifc)
 
-https://bertt.github.io/mapbox_3dtiles_samples/samples/glb
+https://bertt.github.io/mapbox_3dtiles_samples/samples/b3dm
 
 
 
