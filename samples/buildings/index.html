@@ -1,0 +1,83 @@
+<html>
+    <head>
+        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.9.0/mapbox-gl.js'></script>
+        <script src='../../libs/three.min.js'></script>
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.9.0/mapbox-gl.css' rel='stylesheet' />
+        <script src="../../libs/GLTFLoader.js"></script>
+        <script src="../../libs/Mapbox3DTiles.js"></script>
+        <style>
+            body { margin:0; padding:0; }
+            #map { position:absolute; top:0; bottom:0; width:100%; }
+            .container {
+                position: absolute;
+                left: 5px;
+                padding: 5px;
+                border: 1px solid gray;
+                border-radius: 2px;
+                background-color: black;
+                color: white;
+                min-width: 200px;
+            }
+            
+            #controls { position:absolute; top:0; left:0; }
+            #info { 
+			    top:75px; 
+			    min-height: 75px;
+		    }
+        </style>
+    </head>
+    <body>
+            <div id='map'></div>
+            <div id="info" class="container"></div>
+
+            <script>
+            mapboxgl.accessToken = 'pk.eyJ1IjoiYmVydHQiLCJhIjoiaWFvN1Z4USJ9.k04Q6CVms4Gx7KDZxvAx2A';
+
+            var map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [5.139607, 52.086223001404079],
+                zoom: 18,
+                bearing: 0,
+                pitch: 45,
+                hash: true
+            });
+             map.on('style.load', function() {
+                map.addSource('testW', {
+                    type: 'geojson',
+                    data: 'bsd_woningen.geojson'
+                });
+                map.addLayer({
+                    'id': 'Woningen',
+                    'type': 'line',
+                    'source': 'testW',
+                    'paint': {
+                        'line-color': '#ff0000',
+                        'line-width': 2,
+                        'line-opacity': 0.5
+                    }
+                },'waterway-label');
+
+                let tileslayer = new Mapbox3DTiles.Layer( { 
+                    id: '3d_models', 
+                    url: 'tileset.json'
+                }, 'waterway-label');
+                map.addLayer(tileslayer);
+            });
+            map.on('mousemove', (event)=>{
+                let infoElement = document.querySelector('#info');
+                let features = map.queryRenderedFeatures(event.point, {outline: true, outlineColor: 0xff0000});
+                if (features.length) {
+                    infoElement.innerHTML = 
+                        features.map(feature=>
+                            `Layer: ${feature.layer.id}<br>
+                                ${Object.entries(feature.properties).map(entry=>`<b>${entry[0]}:</b>${entry[1]}`).join('<br>\n')}
+                        `).join('<hr>\n')
+                } else {
+                    infoElement.innerHTML = "Hover map objects for info";
+                }
+            });
+
+            </script>
+    </body>
+</html>
