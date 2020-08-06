@@ -43,6 +43,21 @@
                 hash: true
             });
              map.on('style.load', function() {
+                map.addSource('lots', {
+                    type: 'geojson',
+                    data: 'lots.geojson'
+                });
+                map.addLayer({
+                    'id' : 'lots',
+                    'type': 'line',
+                    'source': 'lots',
+                    'paint': {
+                        'line-color': '#bf0000',
+                        'line-opacity': 0.75,
+                        'line-width': 1.5  
+                    }
+                });
+                
                 let tileslayer = new Mapbox3DTiles.Layer( { 
                     id: '3d_models', 
                     url: 'tileset.json'
