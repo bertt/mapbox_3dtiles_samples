@@ -27,7 +27,6 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/lighting
 https://bertt.github.io/mapbox_3dtiles_samples/samples/b3dm
 
 
-
 Not working demo's:
 
 - Demo MapBox GL JS + 3D tiles with glTF animations
