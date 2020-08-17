@@ -4,7 +4,7 @@
         <script src='../../libs/three.min.js'></script>
         <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.9.0/mapbox-gl.css' rel='stylesheet' />
         <script src="../../libs/GLTFLoader.js"></script>
-        <script src="../../libs/Mapbox3DTiles.js"></script>
+        <script src="mapbox_3dtiles_customlighting.js"></script>
         <style>
             body { margin:0; padding:0; }
             #map { position:absolute; top:0; bottom:0; width:100%; }
@@ -60,7 +60,8 @@
                 
                 let tileslayer = new Mapbox3DTiles.Layer( { 
                     id: '3d_models', 
-                    url: 'tileset.json'
+                    url: 'tileset.json',
+		    lighting: 'hemisphere'
                 }, 'waterway-label');
                 map.addLayer(tileslayer);
             });
