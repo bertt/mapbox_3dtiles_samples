@@ -1,9 +1,7 @@
 <html>
     <head>
-        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.9.0/mapbox-gl.js'></script>
-        <script src='../../libs/three.min.js'></script>
-        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.9.0/mapbox-gl.css' rel='stylesheet' />
-        <script src="../../libs/GLTFLoader.js"></script>
+        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.js'></script>
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.css' rel='stylesheet' />
         <script src="Mapbox3DTiles.js"></script>
         <style>
             body { margin:0; padding:0; }
@@ -58,9 +56,11 @@
                     }
                 },'waterway-label');
 
-                let tileslayer = new Mapbox3DTiles.Layer( { 
+                const tileslayer = new Mapbox3DTiles.Mapbox3DTilesLayer( {
                     id: '3d_models', 
-                    url: 'tileset.json'
+                    url: 'tileset.json',
+	                color: 0xffffff, 
+		            opacity: 1
                 }, 'waterway-label');
                 map.addLayer(tileslayer);
             });
