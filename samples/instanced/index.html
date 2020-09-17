@@ -1,10 +1,8 @@
 <html>
     <head>
-        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.9.0/mapbox-gl.js'></script>
-        <script src='../../libs/three.min.js'></script>
-        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.9.0/mapbox-gl.css' rel='stylesheet' />
-        <script src="../../libs/GLTFLoader.js"></script>
-        <script src="../../libs/Mapbox3DTiles.js"></script>
+        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.js'></script>
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.css' rel='stylesheet' />
+        <script src="Mapbox3DTiles.js"></script>
         <style>
             body { margin:0; padding:0; }
             #map { position:absolute; top:0; bottom:0; width:100%; }
@@ -36,14 +34,14 @@
             var map = new mapboxgl.Map({
                 container: 'map',
                 style: 'mapbox://styles/mapbox/dark-v10?optimize=true',
-                center: [-75.526490, 39.160792],
+                center: [5.139825, 52.086455],
                 zoom: 15.62,
                 bearing: 0,
                 pitch: 45,
                 hash: true
             });
              map.on('style.load', function() {
-                let tileslayer = new Mapbox3DTiles.Layer( { 
+                let tileslayer = new Mapbox3DTiles.Mapbox3DTilesLayer( { 
                     id: 'delaware', 
                     url: 'tileset.json'
                 } );
