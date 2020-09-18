@@ -41,11 +41,18 @@
                 hash: true
             });
              map.on('style.load', function() {
-                let tileslayer = new Mapbox3DTiles.Mapbox3DTilesLayer( { 
-                    id: 'delaware', 
-                    url: 'tileset.json'
+                let tileslayerTree = new Mapbox3DTiles.Mapbox3DTilesLayer( { 
+                    id: 'tree', 
+                    url: 'tileset_tree.json'
                 } );
-                map.addLayer(tileslayer, 'waterway-label');
+                map.addLayer(tileslayerTree, 'waterway-label');
+
+                let tileslayerSeat = new Mapbox3DTiles.Mapbox3DTilesLayer( { 
+                    id: 'seat', 
+                    url: 'tileset_seat.json'
+                } );
+                map.addLayer(tileslayerSeat, 'waterway-label');
+
             });
             map.on('mousemove', (event)=>{
                 let infoElement = document.querySelector('#info');
