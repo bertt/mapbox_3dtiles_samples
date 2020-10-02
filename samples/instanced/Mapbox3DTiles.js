@@ -53770,6 +53770,57 @@ var Mapbox3DTiles = (function (exports) {
 	    }
 	}
 
+	async function IMesh(inmesh, instancesParams, inverseMatrix) {
+	    /* intancesParams {
+	        positions: float32Array
+	        normalsRight?: float32Array
+	        normalsUp?: float32Array
+	        scales?: float32Array
+	        xyzScales?: float32 Array
+	    } */
+	    let matrix = new Matrix4();
+	    let position = new Vector3();
+	    let rotation = new Euler();
+	    let quaternion = new Quaternion();
+	    let scale = new Vector3();
+
+	    let geometry = inmesh.geometry;
+	    geometry.applyMatrix4(inmesh.matrixWorld); // apply world modifiers to geometry
+
+	    let material = inmesh.material;
+	    let positions = instancesParams.positions;
+	    let instanceCount = positions.length / 3;
+	    let instancedMesh = new InstancedMesh(geometry, material, instanceCount);
+	    instancedMesh.userData = inmesh.userData;
+
+	    for (let i = 0; i < instanceCount; i++) {
+	        position = {
+	            x: positions[i * 3] + inverseMatrix.elements[12],
+	            y: positions[i * 3 + 1] + inverseMatrix.elements[13],
+	            z: positions[i * 3 + 2] + inverseMatrix.elements[14]
+	        };
+	        if (instancesParams.normalsRight) {
+	            rotation.set(0, 0, Math.atan2(instancesParams.normalsRight[i * 3 + 1], instancesParams.normalsRight[i * 3]));
+	            quaternion.setFromEuler(rotation);
+	        }
+	        scale.x = scale.y = scale.z = LatToScale(YToLat(positions[i * 3 + 1]));
+	        if (instancesParams.scales) {
+	            scale.x *= instancesParams.scales[i];
+	            scale.y *= instancesParams.scales[i];
+	            scale.z *= instancesParams.scales[i];
+	        }
+	        if (instancesParams.xyzScales) {
+	            scale.x *= instancesParams.xyzScales[i * 3];
+	            scale.y *= instancesParams.xyzScales[i * 3 + 1];
+	            scale.z *= instancesParams.xyzScales[i * 3 + 2];
+	        }
+	        matrix.compose(position, quaternion, scale);
+	        instancedMesh.setMatrixAt(i, matrix);
+	    }
+
+	    return instancedMesh;
+	}
+
 	class ThreeDeeTile {
 		constructor(json, resourcePath, styleParams, updateCallback, parentRefine, parentTransform,projectToMercator) {
 		  this.loaded = false;
@@ -53932,44 +53983,41 @@ var Mapbox3DTiles = (function (exports) {
 				try {
 					let loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('assets/wasm/')).setKTX2Loader(new KTX2Loader());
 					let i3dm = new B3DM(url);
-					
 					let i3dmData = await i3dm.load();
-					// Check what metadata is present in the featuretable, currently using: https://github.com/CesiumGS/3d-tiles/tree/master/specification/TileFormats/Instanced3DModel#instance-orientation.
-					let positions = new Float32Array(i3dmData.featureTableBinary, i3dmData.featureTableJSON.POSITION.byteOffset, i3dmData.featureTableJSON.INSTANCES_LENGTH * 3);  
-					let normalsRight = new Float32Array(i3dmData.featureTableBinary, i3dmData.featureTableJSON.NORMAL_RIGHT.byteOffset, i3dmData.featureTableJSON.INSTANCES_LENGTH * 3);
-					let normalsUp = new Float32Array(i3dmData.featureTableBinary, i3dmData.featureTableJSON.NORMAL_UP.byteOffset, i3dmData.featureTableJSON.INSTANCES_LENGTH * 3);
+
+					// Check what metadata is present in the featuretable, currently using: https://github.com/CesiumGS/3d-tiles/tree/master/specification/TileFormats/Instanced3DModel#instance-orientation.				
+					let metadata = i3dmData.featureTableJSON;
+					if (!metadata.POSITION) {
+						console.error(`i3dm missing position metadata (${url})`);
+						return;
+					}
+					let instancesParams = {
+						positions : new Float32Array(i3dmData.featureTableBinary, metadata.POSITION.byteOffset, metadata.INSTANCES_LENGTH * 3)
+					};
+					if (metadata.NORMAL_UP && metadata.NORMAL_RIGHT) {
+						instancesParams.normalsRight = new Float32Array(i3dmData.featureTableBinary, i3dmData.featureTableJSON.NORMAL_RIGHT.byteOffset, metadata.INSTANCES_LENGTH * 3);
+						instancesParams.normalsUp = new Float32Array(i3dmData.featureTableBinary, i3dmData.featureTableJSON.NORMAL_UP.byteOffset, metadata.INSTANCES_LENGTH * 3);	
+					}
+					if (metadata.SCALE) {
+						instancesParams.scales = new Float32Array(i3dmData.featureTableBinary, metadata.SCALE.byteOffset, metadata.INSTANCES_LENGTH);
+					}
+					if (metadata.SCALE_NON_UNIFORM) {
+						instancesParams.xyzScales = new Float32Array(i3dmData.featureTableBinary, metadata.SCALE_NON_UNIFORM.byteOffset, metadata.INSTANCES_LENGTH);
+					}
 					let inverseMatrix = new Matrix4().getInverse(this.worldTransform); // in order to offset by the tile
 					let self = this;
 					loader.parse(i3dmData.glbData, this.resourcePath, (gltf) => {
 						let scene = gltf.scene || gltf.scenes[0];
-						let origin = null;
-						const box = new Box3().setFromObject(scene);
-						const size = box.getSize(new Vector3()).length();
-						const center = box.getCenter(new Vector3());
-						
-						console.log(url);
-						console.log(box);
-						console.log(size);
-						console.log(center);
-
+						scene.rotateX(Math.PI / 2); // convert from GLTF Y-up to Mapbox Z-up
+						scene.updateMatrixWorld(true);
+											
 						scene.traverse(child => {
 							if (child instanceof Mesh) {
 								child.userData = i3dmData.batchTableJson;
-								if (!origin) {
-									origin = child.position;
-								} else {
-									if (child.position.y < origin.y) {
-										// set object origin to vertically lowest mesh
-										origin = child.position;
-									}
-								}
-								
-								let position = child.position.clone();
-								/*IMesh(child, positions, normalsRight, normalsUp, inverseMatrix, position.sub(origin))
-									.then(d=>self.tileContent.add(d));*/
+								IMesh(child, instancesParams, inverseMatrix)
+									.then(d=>self.tileContent.add(d));
 							}
 						});
-						this.tileContent.add(scene);
 					});
 				} catch (error) {
 					console.error(error.message);
