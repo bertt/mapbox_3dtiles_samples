@@ -46418,6 +46418,48 @@ var Mapbox3DTiles = (function (exports) {
 
 	const _box$3 = new Box3();
 
+	class Box3Helper extends LineSegments {
+
+		constructor( box, color = 0xffff00 ) {
+
+			const indices = new Uint16Array( [ 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7 ] );
+
+			const positions = [ 1, 1, 1, - 1, 1, 1, - 1, - 1, 1, 1, - 1, 1, 1, 1, - 1, - 1, 1, - 1, - 1, - 1, - 1, 1, - 1, - 1 ];
+
+			const geometry = new BufferGeometry();
+
+			geometry.setIndex( new BufferAttribute( indices, 1 ) );
+
+			geometry.setAttribute( 'position', new Float32BufferAttribute( positions, 3 ) );
+
+			super( geometry, new LineBasicMaterial( { color: color, toneMapped: false } ) );
+
+			this.box = box;
+
+			this.type = 'Box3Helper';
+
+			this.geometry.computeBoundingSphere();
+
+		}
+
+		updateMatrixWorld( force ) {
+
+			const box = this.box;
+
+			if ( box.isEmpty() ) return;
+
+			box.getCenter( this.position );
+
+			box.getSize( this.scale );
+
+			this.scale.multiplyScalar( 0.5 );
+
+			super.updateMatrixWorld( force );
+
+		}
+
+	}
+
 	const _axis = new Vector3();
 
 	const LOD_MIN = 4;
@@ -53625,7 +53667,7 @@ var Mapbox3DTiles = (function (exports) {
 	            throw new Error(`HTTP ${response.status} - ${response.statusText}`);
 	        }
 	        let buffer = await response.arrayBuffer();
-	        let res = this.parseResponse(buffer);
+	        let res = await this.parseResponse(buffer);
 	        return res;
 	    }
 	    async parseResponse(buffer) {
@@ -53681,7 +53723,7 @@ var Mapbox3DTiles = (function (exports) {
 	            let response = await fetch(modelUrl);
 	            if (!response.ok) {
 	                throw new Error(`HTTP ${response.status} - ${response.statusText}`);
-	            }
+	            }    
 	            this.binaryData = await response.arrayBuffer();
 	        }
 	        return this;
@@ -53693,8 +53735,8 @@ var Mapbox3DTiles = (function (exports) {
 	        super(url);
 	        this.glbData = null;
 	    }
-	    parseResponse(buffer) {
-	        super.parseResponse(buffer);
+	    async parseResponse(buffer) {
+	        await super.parseResponse(buffer);
 	        this.glbData = this.binaryData;
 	        return this;
 	    }
@@ -54122,22 +54164,20 @@ var Mapbox3DTiles = (function (exports) {
 		  let worldBox = this.box.clone().applyMatrix4(this.worldTransform);
 		  let dist = worldBox.distanceToPoint(cameraPosition);
 		  
-	  
 		  //console.log(`dist: ${dist}, geometricError: ${this.geometricError}`);
 		  // are we too far to render this tile?
 		  if (this.geometricError > 0.0 && dist > this.geometricError * 50.0) {
 			this.unload(true);
 			return;
 		  }
+
 		  //console.log(`camPos: ${cameraPosition.z}, dist: ${dist}, geometricError: ${this.geometricError}`);
-		  
 		  // should we load this tile?
-		  if (this.refine == 'REPLACE' && dist < this.geometricError * 20.0) {
+		  if ((this.refine == 'REPLACE' && dist < this.geometricError * 20.0 && this.children.length > 0)) {
 			this.unload(false);
 		  } else {
 			this.load();
 		  }
-		  
 		  
 		  // should we load its children?
 		  for (let i=0; i<this.children.length; i++) {
@@ -55230,6 +55270,8 @@ var Mapbox3DTiles = (function (exports) {
 	        }
 
 	        const box = new Box3().setFromObject(model);
+	        var helper = new Box3Helper( box, 0xffff00 );
+
 	        box.min = model.worldToLocal(box.min);
 	        box.max = model.worldToLocal(box.max);
 
@@ -55267,7 +55309,7 @@ var Mapbox3DTiles = (function (exports) {
 	        const highlight = new Group();
 	        highlight.add(...planes);
 	        highlight.add(line);
-	        model.add(highlight);
+	        model.add(helper);
 
 	        return {
 	            modelId: modelId,
@@ -55286,6 +55328,7 @@ var Mapbox3DTiles = (function (exports) {
 	            )
 	        );
 
+	        //bufferGeom.setIndex([0, 2, 1, 2, 3, 1]);
 	        bufferGeom.setIndex([0, 2, 1, 2, 3, 1]);
 	        bufferGeom.computeVertexNormals();
 	        bufferGeom.computeBoundingBox();
@@ -60043,6 +60086,8 @@ var Mapbox3DTiles = (function (exports) {
 	exports.Mapbox3DTilesLayer = Mapbox3DTilesLayer;
 	exports.projectToWorld = projectToWorld;
 	exports.projectedUnitsPerMeter = projectedUnitsPerMeter;
+
+	Object.defineProperty(exports, '__esModule', { value: true });
 
 	return exports;
 
