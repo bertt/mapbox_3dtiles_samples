@@ -54218,7 +54218,7 @@ var Mapbox3DTiles = (function (exports) {
 		}
 	  }
 
-	class TileSet$1 {
+	class TileSet {
 	    constructor(updateCallback) {
 	        if (!updateCallback) {
 	            updateCallback = () => {};
@@ -59788,7 +59788,7 @@ var Mapbox3DTiles = (function (exports) {
 	        //raycaster for mouse events
 	        this.raycaster = new Raycaster();
 	        if (this.url) {
-	            this.tileset = new TileSet$1(() => this.map.triggerRepaint());
+	            this.tileset = new TileSet(() => this.map.triggerRepaint());
 	            this.tileset
 	                .load(this.url, this.styleParams, this.projectToMercator)
 	                .then(() => {
