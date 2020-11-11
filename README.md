@@ -4,7 +4,7 @@ Repository with some samples of 3D Tiles in a MapBox viewer.
 
 In these demo https://github.com/Geodan/mapbox-3dtiles is used for handling the 3D tiles.
 
-- LOD's demo. 
+- LOD's demo
 
 Demo MapBox GL JS + 3D Tiles Level of detail + attributes window from batching option
 
