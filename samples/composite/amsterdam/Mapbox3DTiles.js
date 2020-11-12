@@ -48478,7 +48478,7 @@ var Mapbox3DTiles = (function (exports) {
 	        }
 
 	        var t = this.map.transform;
-
+	        
 	        var halfFov = this.state.fov / 2;
 	        const groundAngle = Math.PI / 2 + t._pitch;
 	        this.state.topHalfSurfaceDistance =
@@ -48491,6 +48491,7 @@ var Mapbox3DTiles = (function (exports) {
 	        // Add a bit extra to avoid precision problems when a fragment's distance is exactly `furthestDistance`
 	        const farZ = furthestDistance * 1.01;
 
+	        this.camera.aspect = t.width / t.height;
 	        this.camera.projectionMatrix = this.makePerspectiveMatrix(this.state.fov, t.width / t.height, 1, farZ);
 
 	        var cameraWorldMatrix = new Matrix4();
@@ -48511,11 +48512,7 @@ var Mapbox3DTiles = (function (exports) {
 	        //console.log(`zoomPow: ${zoomPow}`);
 
 	        let translateMap = new Matrix4();
-
-	        let x = -this.map.transform.x || -this.map.transform.point.x;
-	        let y = this.map.transform.y || this.map.transform.point.y;
-
-	        translateMap.makeTranslation(x, y, 0);
+	        translateMap.makeTranslation(-t.point.x, t.point.y, 0);
 
 	        this.world.matrix = new Matrix4();
 	        this.world.matrix
@@ -48534,7 +48531,7 @@ var Mapbox3DTiles = (function (exports) {
 	        );
 
 	        this.cameraPosition = new Vector3(0, 0, 0).unproject(this.camera).applyMatrix4(matrixWorldInverse);
-
+	        
 	        if (this.updateCallback) {
 	            this.updateCallback();
 	        }
@@ -48544,7 +48541,10 @@ var Mapbox3DTiles = (function (exports) {
 	        let f = 1.0 / Math.tan(fovy / 2),
 	            nf = 1 / (near - far);
 
-	        let newMatrix = [f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (far + near) * nf, -1, 0, 0, 2 * far * near * nf, 0];
+	        let newMatrix = [f / aspect, 0, 0, 0, 
+	                         0, f, 0, 0, 
+	                         0, 0, (far + near) * nf, -1, 
+	                         0, 0, 2 * far * near * nf, 0];
 
 	        out.elements = newMatrix;
 	        return out;
@@ -53720,11 +53720,16 @@ var Mapbox3DTiles = (function (exports) {
 	        } else {
 	            // load binary data from url at pos
 	            let modelUrl = decoder.decode(new Uint8Array(buffer.slice(pos)));
-	            let response = await fetch(modelUrl);
-	            if (!response.ok) {
-	                throw new Error(`HTTP ${response.status} - ${response.statusText}`);
-	            }    
-	            this.binaryData = await response.arrayBuffer();
+	            if (internalGLTFCache.has(modelUrl)) {
+	                this.binaryData = internalGLTFCache.get(modelUrl);
+	            } else {
+	                let response = await fetch(modelUrl);
+	                if (!response.ok) {
+	                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+	                }    
+	                this.binaryData = await response.arrayBuffer();
+	                internalGLTFCache.set(modelUrl, this.binaryData);
+	            }
 	        }
 	        return this;
 	    }
@@ -53739,6 +53744,35 @@ var Mapbox3DTiles = (function (exports) {
 	        await super.parseResponse(buffer);
 	        this.glbData = this.binaryData;
 	        return this;
+	    }
+	}
+
+	class CMPT extends TileLoader {
+	    constructor(url) {
+	        super(url);
+	    }
+	    async parseResponse(buffer) {
+	        let header = new Uint32Array(buffer.slice(0, 4*4));
+	        let decoder = new TextDecoder();
+	        let magic = decoder.decode(new Uint8Array(buffer.slice(0, 4)));
+	        if (magic != this.type) {
+	            throw new Error(`Invalid magic string, expected '${this.type}', got '${this.magic}'`);
+	        }
+	        this.version = header[1];
+	        this.byteLength = header[2];
+	        this.tilesLength = header[3];
+	        let innerTiles = [];
+	        let tileStart  = 16;
+	        for (let i = 0; i < this.tilesLength; i++) {
+	            let tileHeader = new Uint32Array(buffer.slice(tileStart, tileStart + 3 * 4));
+	            let tileMagic = decoder.decode(new Uint8Array(buffer.slice(tileStart, tileStart + 4)));
+	            //console.log(`innerTile: ${i}, magic: ${tileMagic}`);
+	            let tileByteLength = tileHeader[2];
+	            let tileData = buffer.slice(tileStart, tileStart + tileByteLength);
+	            innerTiles.push({type: tileMagic, data: tileData});
+	            tileStart += tileByteLength;
+	        }
+	        return innerTiles;
 	    }
 	}
 
@@ -53785,6 +53819,8 @@ var Mapbox3DTiles = (function (exports) {
 	        return this;
 	    }
 	}
+
+	let internalGLTFCache = new Map();
 
 	function YToLat(Y) {
 	    return (Math.atan(Math.pow(Math.E, ((Y / 111319.490778) * Math.PI) / 180.0)) * 360.0) / Math.PI - 90.0;
@@ -53976,105 +54012,18 @@ var Mapbox3DTiles = (function (exports) {
 				break;
 			  case 'b3dm':
 				try {
-				  let loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('assets/wasm/')).setKTX2Loader(new KTX2Loader());
 				  let b3dm = new B3DM(url);
-				  let rotateX = new Matrix4().makeRotationAxis(new Vector3(1, 0, 0), Math.PI / 2);
-				  this.tileContent.applyMatrix4(rotateX); // convert from GLTF Y-up to Z-up
 				  let b3dmData = await b3dm.load();
-				  loader.parse(b3dmData.glbData, this.resourcePath, (gltf) => {
-					  let scene = gltf.scene || gltf.scenes[0];
-
-					  if (this.projectToMercator) {
-						//TODO: must be a nicer way to get the local Y in webmerc. than worldTransform.elements	
-						scene.scale.setScalar(LatToScale(YToLat(this.worldTransform.elements[13])));
-					  }
-					  scene.traverse(child => {
-						if (child instanceof Mesh) {
-						  // some gltf has wrong bounding data, recompute here
-						  child.geometry.computeBoundingBox();
-						  child.geometry.computeBoundingSphere();
-						  child.castShadow = true;
-
-						  child.material.depthWrite = !child.material.transparent; // necessary for Velsen dataset?
-						  //Add the batchtable to the userData since gltfLoader doesn't deal with it
-						  child.userData = b3dmData.batchTableJson;
-						  child.userData.b3dm = url.replace(this.resourcePath, '').replace('.b3dm', '');
-						}
-					  });
-					  if (this.styleParams.color != null || this.styleParams.opacity != null) {
-						let color = new Color(this.styleParams.color);
-						scene.traverse(child => {
-						  if (child instanceof Mesh) {
-							if (this.styleParams.color != null) 
-							  child.material.color = color;
-							if (this.styleParams.opacity != null) {
-							  child.material.opacity = this.styleParams.opacity;
-							  child.material.transparent = this.styleParams.opacity < 1.0 ? true : false;
-							}
-						  }
-						});
-					  }
-					  if (this.debugColor) {
-						scene.traverse(child => {
-						  if (child instanceof Mesh) {
-							child.material.color = this.debugColor;
-						  }
-						});
-					  }
-					  this.tileContent.add(scene);
-					}, (error) => {
-					  throw new Error('error parsing gltf: ' + error);
-					}
-				  );
+				  this.b3dmAdd(b3dmData, url);
 				} catch (error) {
 				  console.error(error);
 				}
 				break;
 			  case 'i3dm':
 				try {
-					let loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('assets/wasm/')).setKTX2Loader(new KTX2Loader());
 					let i3dm = new B3DM(url);
 					let i3dmData = await i3dm.load();
-
-					// Check what metadata is present in the featuretable, currently using: https://github.com/CesiumGS/3d-tiles/tree/master/specification/TileFormats/Instanced3DModel#instance-orientation.				
-					let metadata = i3dmData.featureTableJSON;
-					if (!metadata.POSITION) {
-						console.error(`i3dm missing position metadata (${url})`);
-						return;
-					}
-					let instancesParams = {
-						positions : new Float32Array(i3dmData.featureTableBinary, metadata.POSITION.byteOffset, metadata.INSTANCES_LENGTH * 3)
-					};
-					if (metadata.RTC_CENTER) {
-						if (Array.isArray(metadata.RTC_CENTER) && metadata.RTC_CENTER.length === 3) {
-							instancesParams.rtcCenter = [metadata.RTC_CENTER[0], metadata.RTC_CENTER[1],metadata.RTC_CENTER[2]];
-						} 
-					}
-					if (metadata.NORMAL_UP && metadata.NORMAL_RIGHT) {
-						instancesParams.normalsRight = new Float32Array(i3dmData.featureTableBinary, metadata.NORMAL_RIGHT.byteOffset, metadata.INSTANCES_LENGTH * 3);
-						instancesParams.normalsUp = new Float32Array(i3dmData.featureTableBinary, metadata.NORMAL_UP.byteOffset, metadata.INSTANCES_LENGTH * 3);	
-					}
-					if (metadata.SCALE) {
-						instancesParams.scales = new Float32Array(i3dmData.featureTableBinary, metadata.SCALE.byteOffset, metadata.INSTANCES_LENGTH);
-					}
-					if (metadata.SCALE_NON_UNIFORM) {
-						instancesParams.xyzScales = new Float32Array(i3dmData.featureTableBinary, metadata.SCALE_NON_UNIFORM.byteOffset, metadata.INSTANCES_LENGTH);
-					}
-					let inverseMatrix = new Matrix4().getInverse(this.worldTransform); // in order to offset by the tile
-					let self = this;
-					loader.parse(i3dmData.glbData, this.resourcePath, (gltf) => {
-						let scene = gltf.scene || gltf.scenes[0];
-						scene.rotateX(Math.PI / 2); // convert from GLTF Y-up to Mapbox Z-up
-						scene.updateMatrixWorld(true);
-											
-						scene.traverse(child => {
-							if (child instanceof Mesh) {
-								child.userData = i3dmData.batchTableJson;
-								IMesh(child, instancesParams, inverseMatrix)
-									.then(d=>self.tileContent.add(d));
-							}
-						});
-					});
+					this.i3dmAdd(i3dmData);
 				} catch (error) {
 					console.error(error.message);
 				}
@@ -54082,39 +54031,167 @@ var Mapbox3DTiles = (function (exports) {
 			  case 'pnts':
 				try {
 				  let pnts = new PNTS(url);
-				  let pointData = await pnts.load();            
-				  let geometry = new BufferGeometry();
-				  geometry.setAttribute('position', new Float32BufferAttribute(pointData.points, 3));
-				  let material = new PointsMaterial();
-				  material.size = this.styleParams.pointsize != null ? this.styleParams.pointsize : 1.0;
-				  if (this.styleParams.color) {
-					material.vertexColors = NoColors;
-					material.color = new Color(this.styleParams.color);
-					material.opacity = this.styleParams.opacity != null ? this.styleParams.opacity : 1.0;
-				  } else if (pointData.rgba) {
-					geometry.setAttribute('color', new Float32BufferAttribute(pointData.rgba, 4));
-					material.vertexColors = VertexColors;
-				  } else if (pointData.rgb) {
-					geometry.setAttribute('color', new Float32BufferAttribute(pointData.rgb, 3));
-					material.vertexColors = VertexColors;
-				  }
-				  this.tileContent.add(new Points( geometry, material ));
-				  if (pointData.rtc_center) {
-					let c = pointData.rtc_center;
-					this.tileContent.applyMatrix4(new Matrix4().makeTranslation(c[0], c[1], c[2]));
-				  }
-				  this.tileContent.add(new Points( geometry, material ));
+				  let pointData = await pnts.load();
+				  this.pntsAdd(pointData);
 				} catch (error) {
 				  console.error(error);
 				}
 				break;
 			  case 'cmpt':
-				throw new Error('cmpt tiles not yet implemented');
+				let cmpt = new CMPT(url);
+				let compositeTiles = await cmpt.load();
+				this.cmptAdd(compositeTiles, url);
+				break;
 			  default:
 				throw new Error('invalid tile type: ' + type);
 			}
 		  }
 		  this.updateCallback();
+		}
+		async cmptAdd(compositeTiles, url) {
+			for (let innerTile of compositeTiles) {
+				switch(innerTile.type) {
+					case 'i3dm':
+						let i3dm = new B3DM('.i3dm');
+						let i3dmData = await i3dm.parseResponse(innerTile.data);
+						this.i3dmAdd(i3dmData);
+						break;
+					case 'b3dm':
+						let b3dm = new B3DM('.b3dm');
+						let b3dmData = await b3dm.parseResponse(innerTile.data);
+						this.b3dmAdd(b3dmData, url.slice(0,-4) + 'b3dm');
+						break;
+					case 'pnts':
+						let pnts = new PNTS('.pnts');
+						let pointData = pnts.parseResponse(innerTile.data);
+						this.pntsAdd(pointData);
+						break;
+					case 'cmpt':
+						let cmpt = new CMPT('.cmpt');
+						let subCompositeTiles = CMPT.parseResponse(innerTile.data);
+						this.cmptAdd(subCompositeTiles);
+						break;
+					default:
+						console.error(`Composite type ${innerTile.type} not supported`);
+						break;
+				}
+				console.log(`type: ${innerTile.type}, size: ${innerTile.data.byteLength}`);
+			}
+		}
+		pntsAdd(pointData) {
+			let geometry = new BufferGeometry();
+			geometry.setAttribute('position', new Float32BufferAttribute(pointData.points, 3));
+			let material = new PointsMaterial();
+			material.size = this.styleParams.pointsize != null ? this.styleParams.pointsize : 1.0;
+			if (this.styleParams.color) {
+			material.vertexColors = NoColors;
+			material.color = new Color(this.styleParams.color);
+			material.opacity = this.styleParams.opacity != null ? this.styleParams.opacity : 1.0;
+			} else if (pointData.rgba) {
+			geometry.setAttribute('color', new Float32BufferAttribute(pointData.rgba, 4));
+			material.vertexColors = VertexColors;
+			} else if (pointData.rgb) {
+			geometry.setAttribute('color', new Float32BufferAttribute(pointData.rgb, 3));
+			material.vertexColors = VertexColors;
+			}
+			this.tileContent.add(new Points( geometry, material ));
+			if (pointData.rtc_center) {
+			let c = pointData.rtc_center;
+			this.tileContent.applyMatrix4(new Matrix4().makeTranslation(c[0], c[1], c[2]));
+			}
+			this.tileContent.add(new Points( geometry, material ));
+		}
+		b3dmAdd(b3dmData, url) {
+			let loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('assets/wasm/')).setKTX2Loader(new KTX2Loader());
+			let rotateX = new Matrix4().makeRotationAxis(new Vector3(1, 0, 0), Math.PI / 2);
+			this.tileContent.applyMatrix4(rotateX); // convert from GLTF Y-up to Z-up
+			loader.parse(b3dmData.glbData, this.resourcePath, (gltf) => {
+					let scene = gltf.scene || gltf.scenes[0];
+
+					if (this.projectToMercator) {
+					//TODO: must be a nicer way to get the local Y in webmerc. than worldTransform.elements	
+					scene.scale.setScalar(LatToScale(YToLat(this.worldTransform.elements[13])));
+					}
+					scene.traverse(child => {
+					if (child instanceof Mesh) {
+						// some gltf has wrong bounding data, recompute here
+						child.geometry.computeBoundingBox();
+						child.geometry.computeBoundingSphere();
+						child.castShadow = true;
+
+						child.material.depthWrite = !child.material.transparent; // necessary for Velsen dataset?
+						//Add the batchtable to the userData since gltfLoader doesn't deal with it
+						child.userData = b3dmData.batchTableJson;
+						child.userData.b3dm = url.replace(this.resourcePath, '').replace('.b3dm', '');
+					}
+					});
+					if (this.styleParams.color != null || this.styleParams.opacity != null) {
+					let color = new Color(this.styleParams.color);
+					scene.traverse(child => {
+						if (child instanceof Mesh) {
+						if (this.styleParams.color != null) 
+							child.material.color = color;
+						if (this.styleParams.opacity != null) {
+							child.material.opacity = this.styleParams.opacity;
+							child.material.transparent = this.styleParams.opacity < 1.0 ? true : false;
+						}
+						}
+					});
+					}
+					if (this.debugColor) {
+					scene.traverse(child => {
+						if (child instanceof Mesh) {
+						child.material.color = this.debugColor;
+						}
+					});
+					}
+					this.tileContent.add(scene);
+				}, (error) => {
+					throw new Error('error parsing gltf: ' + error);
+				}
+			);
+		}
+		i3dmAdd(i3dmData) {
+			let loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('assets/wasm/')).setKTX2Loader(new KTX2Loader());
+			// Check what metadata is present in the featuretable, currently using: https://github.com/CesiumGS/3d-tiles/tree/master/specification/TileFormats/Instanced3DModel#instance-orientation.				
+			let metadata = i3dmData.featureTableJSON;
+			if (!metadata.POSITION) {
+				console.error(`i3dm missing position metadata`);
+				return;
+			}
+			let instancesParams = {
+				positions : new Float32Array(i3dmData.featureTableBinary, metadata.POSITION.byteOffset, metadata.INSTANCES_LENGTH * 3)
+			};
+			if (metadata.RTC_CENTER) {
+				if (Array.isArray(metadata.RTC_CENTER) && metadata.RTC_CENTER.length === 3) {
+					instancesParams.rtcCenter = [metadata.RTC_CENTER[0], metadata.RTC_CENTER[1],metadata.RTC_CENTER[2]];
+				} 
+			}
+			if (metadata.NORMAL_UP && metadata.NORMAL_RIGHT) {
+				instancesParams.normalsRight = new Float32Array(i3dmData.featureTableBinary, metadata.NORMAL_RIGHT.byteOffset, metadata.INSTANCES_LENGTH * 3);
+				instancesParams.normalsUp = new Float32Array(i3dmData.featureTableBinary, metadata.NORMAL_UP.byteOffset, metadata.INSTANCES_LENGTH * 3);	
+			}
+			if (metadata.SCALE) {
+				instancesParams.scales = new Float32Array(i3dmData.featureTableBinary, metadata.SCALE.byteOffset, metadata.INSTANCES_LENGTH);
+			}
+			if (metadata.SCALE_NON_UNIFORM) {
+				instancesParams.xyzScales = new Float32Array(i3dmData.featureTableBinary, metadata.SCALE_NON_UNIFORM.byteOffset, metadata.INSTANCES_LENGTH);
+			}
+			let inverseMatrix = new Matrix4().getInverse(this.worldTransform); // in order to offset by the tile
+			let self = this;
+			loader.parse(i3dmData.glbData, this.resourcePath, (gltf) => {
+				let scene = gltf.scene || gltf.scenes[0];
+				scene.rotateX(Math.PI / 2); // convert from GLTF Y-up to Mapbox Z-up
+				scene.updateMatrixWorld(true);
+									
+				scene.traverse(child => {
+					if (child instanceof Mesh) {
+						child.userData = i3dmData.batchTableJson;
+						IMesh(child, instancesParams, inverseMatrix)
+							.then(d=>self.tileContent.add(d));
+					}
+				});
+			});
 		}
 		unload(includeChildren) {
 		  this.unloadedTileContent = true;
@@ -54211,7 +54288,7 @@ var Mapbox3DTiles = (function (exports) {
 		}
 	  }
 
-	class TileSet$1 {
+	class TileSet {
 	    constructor(updateCallback) {
 	        if (!updateCallback) {
 	            updateCallback = () => {};
@@ -59781,7 +59858,7 @@ var Mapbox3DTiles = (function (exports) {
 	        //raycaster for mouse events
 	        this.raycaster = new Raycaster();
 	        if (this.url) {
-	            this.tileset = new TileSet$1(() => this.map.triggerRepaint());
+	            this.tileset = new TileSet(() => this.map.triggerRepaint());
 	            this.tileset
 	                .load(this.url, this.styleParams, this.projectToMercator)
 	                .then(() => {
@@ -60086,8 +60163,6 @@ var Mapbox3DTiles = (function (exports) {
 	exports.Mapbox3DTilesLayer = Mapbox3DTilesLayer;
 	exports.projectToWorld = projectToWorld;
 	exports.projectedUnitsPerMeter = projectedUnitsPerMeter;
-
-	Object.defineProperty(exports, '__esModule', { value: true });
 
 	return exports;
 
