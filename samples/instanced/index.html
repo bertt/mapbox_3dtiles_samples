@@ -34,8 +34,8 @@
             var map = new mapboxgl.Map({
                 container: 'map',
                 style: 'mapbox://styles/mapbox/dark-v10?optimize=true',
-                center: [5.139825, 52.086455],
-                zoom: 15.62,
+                center: [4.6203963, 52.4594779],
+                zoom: 18.54,
                 bearing: 0,
                 pitch: 45,
                 hash: true
@@ -43,15 +43,9 @@
              map.on('style.load', function() {
                 let tileslayerTree = new Mapbox3DTiles.Mapbox3DTilesLayer( { 
                     id: 'tree', 
-                    url: 'tileset_tree.json'
+                    url: 'tileset.json'
                 } );
                 map.addLayer(tileslayerTree, 'waterway-label');
-
-                let tileslayerSeat = new Mapbox3DTiles.Mapbox3DTilesLayer( { 
-                    id: 'seat', 
-                    url: 'tileset_seat.json'
-                } );
-                map.addLayer(tileslayerSeat, 'waterway-label');
 
             });
             map.on('mousemove', (event)=>{

@@ -53772,17 +53772,19 @@ var Mapbox3DTiles = (function (exports) {
 
 	async function IMesh(inmesh, instancesParams, inverseMatrix) {
 	    /* intancesParams {
-	        positions: float32Array
-	        normalsRight?: float32Array
-	        normalsUp?: float32Array
-	        scales?: float32Array
-	        xyzScales?: float32 Array
+	        positions: float32[]
+	        rtcCenter?: float32[3]
+	        normalsRight?: float32[]
+	        normalsUp?: float32[]
+	        scales?: float32[]
+	        xyzScales?: float32[]
 	    } */
 	    let matrix = new Matrix4();
 	    let position = new Vector3();
 	    let rotation = new Euler();
 	    let quaternion = new Quaternion();
 	    let scale = new Vector3();
+	    let rtcCenter = instancesParams.rtcCenter ? instancesParams.rtcCenter : [0.0, 0.0, 0.0];
 
 	    let geometry = inmesh.geometry;
 	    geometry.applyMatrix4(inmesh.matrixWorld); // apply world modifiers to geometry
@@ -53793,11 +53795,15 @@ var Mapbox3DTiles = (function (exports) {
 	    let instancedMesh = new InstancedMesh(geometry, material, instanceCount);
 	    instancedMesh.userData = inmesh.userData;
 
+	    if (instancesParams.rtcCenter) {
+	        rtcCenter = instancesParams.rtcCenter;
+	    }
+
 	    for (let i = 0; i < instanceCount; i++) {
 	        position = {
-	            x: positions[i * 3] + inverseMatrix.elements[12],
-	            y: positions[i * 3 + 1] + inverseMatrix.elements[13],
-	            z: positions[i * 3 + 2] + inverseMatrix.elements[14]
+	            x: positions[i * 3] + (rtcCenter[0] + inverseMatrix.elements[12]),
+	            y: positions[i * 3 + 1] + (rtcCenter[1] + inverseMatrix.elements[13]),
+	            z: positions[i * 3 + 2] + (rtcCenter[2] + inverseMatrix.elements[14])
 	        };
 	        if (instancesParams.normalsRight) {
 	            rotation.set(0, 0, Math.atan2(instancesParams.normalsRight[i * 3 + 1], instancesParams.normalsRight[i * 3]));
@@ -53816,6 +53822,7 @@ var Mapbox3DTiles = (function (exports) {
 	        }
 	        matrix.compose(position, quaternion, scale);
 	        instancedMesh.setMatrixAt(i, matrix);
+	        instancedMesh.castShadow = true;
 	    }
 
 	    return instancedMesh;
@@ -53934,6 +53941,7 @@ var Mapbox3DTiles = (function (exports) {
 				  let b3dmData = await b3dm.load();
 				  loader.parse(b3dmData.glbData, this.resourcePath, (gltf) => {
 					  let scene = gltf.scene || gltf.scenes[0];
+
 					  if (this.projectToMercator) {
 						//TODO: must be a nicer way to get the local Y in webmerc. than worldTransform.elements	
 						scene.scale.setScalar(LatToScale(YToLat(this.worldTransform.elements[13])));
@@ -53943,7 +53951,8 @@ var Mapbox3DTiles = (function (exports) {
 						  // some gltf has wrong bounding data, recompute here
 						  child.geometry.computeBoundingBox();
 						  child.geometry.computeBoundingSphere();
-						
+						  child.castShadow = true;
+
 						  child.material.depthWrite = !child.material.transparent; // necessary for Velsen dataset?
 						  //Add the batchtable to the userData since gltfLoader doesn't deal with it
 						  child.userData = b3dmData.batchTableJson;
@@ -53994,9 +54003,14 @@ var Mapbox3DTiles = (function (exports) {
 					let instancesParams = {
 						positions : new Float32Array(i3dmData.featureTableBinary, metadata.POSITION.byteOffset, metadata.INSTANCES_LENGTH * 3)
 					};
+					if (metadata.RTC_CENTER) {
+						if (Array.isArray(metadata.RTC_CENTER) && metadata.RTC_CENTER.length === 3) {
+							instancesParams.rtcCenter = [metadata.RTC_CENTER[0], metadata.RTC_CENTER[1],metadata.RTC_CENTER[2]];
+						} 
+					}
 					if (metadata.NORMAL_UP && metadata.NORMAL_RIGHT) {
-						instancesParams.normalsRight = new Float32Array(i3dmData.featureTableBinary, i3dmData.featureTableJSON.NORMAL_RIGHT.byteOffset, metadata.INSTANCES_LENGTH * 3);
-						instancesParams.normalsUp = new Float32Array(i3dmData.featureTableBinary, i3dmData.featureTableJSON.NORMAL_UP.byteOffset, metadata.INSTANCES_LENGTH * 3);	
+						instancesParams.normalsRight = new Float32Array(i3dmData.featureTableBinary, metadata.NORMAL_RIGHT.byteOffset, metadata.INSTANCES_LENGTH * 3);
+						instancesParams.normalsUp = new Float32Array(i3dmData.featureTableBinary, metadata.NORMAL_UP.byteOffset, metadata.INSTANCES_LENGTH * 3);	
 					}
 					if (metadata.SCALE) {
 						instancesParams.scales = new Float32Array(i3dmData.featureTableBinary, metadata.SCALE.byteOffset, metadata.INSTANCES_LENGTH);
@@ -59618,11 +59632,23 @@ var Mapbox3DTiles = (function (exports) {
 	    }
 
 	    getDefaultLights() {
-	        const hemiLight = new HemisphereLight(0xffffff, 0xbebebe, 0.9);
+	        const width = window.innerWidth;
+	        const height = window.innerHeight;
+	        const hemiLight = new HemisphereLight(0xffffff, 0xbebebe, 0.7);
 	        const dirLight = new DirectionalLight(0xffffff, 0.5);
 	        dirLight.color.setHSL(0.1, 1, 0.95);
 	        dirLight.position.set(-1, -1.75, 1);
 	        dirLight.position.multiplyScalar(100);
+	        dirLight.castShadow = true;
+	        dirLight.shadow.camera.near = -10000;
+	        dirLight.shadow.camera.far = 2000000;
+	        dirLight.shadow.bias = 0.0038;
+	        dirLight.shadow.mapSize.width = width;
+	        dirLight.shadow.mapSize.height = height;
+	        dirLight.shadow.camera.left = -width;
+	        dirLight.shadow.camera.right = width;
+	        dirLight.shadow.camera.top = -height;
+	        dirLight.shadow.camera.bottom = height;
 
 	        return [hemiLight, dirLight];
 	    }
@@ -59648,6 +59674,7 @@ var Mapbox3DTiles = (function (exports) {
 
 	        this.lights.forEach((light) => {
 	            this.scene.add(light);
+	            if (light.shadow && light.shadow.camera) ;
 	        });
 
 	        this.world = new Group();
@@ -59660,6 +59687,9 @@ var Mapbox3DTiles = (function (exports) {
 	            canvas: map.getCanvas(),
 	            context: gl
 	        });
+
+	        this.renderer.shadowMap.enabled = true;
+	        this.renderer.shadowMap.type = PCFShadowMap;
 
 	        this.highlight = new Highlight(this.scene, this.map);
 	        this.marker = new Marker(this.scene, this.map);
@@ -59723,6 +59753,8 @@ var Mapbox3DTiles = (function (exports) {
 	                    console.error(`${error} (${this.url})`);
 	                });
 	        }
+
+	        this.addShadow();
 	    }
 
 	    onRemove(map, gl) {
@@ -59730,6 +59762,42 @@ var Mapbox3DTiles = (function (exports) {
 	        this.map.queryRenderedFeatures = this.mapQueryRenderedFeatures;
 	        this.cameraSync.detachCamera();
 	        this.cameraSync = null;
+	    }
+
+	    addShadow() {
+	        //debug plane
+	        //var geo1 = new THREE.PlaneBufferGeometry(10000, 10000, 1, 1);
+	        //var mat1 = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide });
+	        //var plane1 = new THREE.Mesh(geo1, mat1);
+	        //plane1.receiveShadow = true;
+	        //this.scene.add(plane1);
+
+	        if (!this.shadowPlane) {
+	            var planeGeometry = new PlaneBufferGeometry(10000, 10000, 1, 1);
+	            this.shadowMaterial = new ShadowMaterial();
+	            this.shadowMaterial.opacity = 0.3;
+	            this.shadowPlane = new Mesh(planeGeometry, this.shadowMaterial);
+	            this.shadowPlane.receiveShadow = true;
+	        }
+
+	        this.scene.add(this.shadowPlane);
+	    }
+
+	    removeShadow() {
+	        this.scene.remove(this.shadowPlane);
+	    }
+
+	    setShadowOpacity(opacity) {
+	        const newOpacity = opacity < 0 ? 0.0 : opacity > 1 ? 1.0 : opacity;
+	        this.shadowMaterial.opacity = newOpacity;
+	    }
+
+	    //ToDo: currently based on default lights, can be overriden by user, handle differently
+	    setHismphereIntensity(intensity) {
+	        if(this.lights[0] instanceof HemisphereLight) {
+	            const newIntensity = intensity < 0 ? 0.0 : intensity > 1 ? 1.0 : intensity;
+	            this.lights[0].intensity = newIntensity;
+	        }
 	    }
 
 	    queryRenderedFeatures(geometry, options) {

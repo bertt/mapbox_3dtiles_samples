@@ -34,34 +34,37 @@
             var map = new mapboxgl.Map({
                 container: 'map',
                 style: 'mapbox://styles/mapbox/streets-v11',
-                center: [5.5981999, 51.4629160],
+                center: [5.601002, 51.463181], 
                 zoom: 18,
                 bearing: 0,
                 pitch: 45,
                 hash: true
             });
+
+
              map.on('style.load', function() {
-                map.addSource('testW', {
+
+                map.addSource('lots', {
                     type: 'geojson',
-                    data: 'bsd_woningen.geojson'
+                    data: 'lots.geojson'
                 });
                 map.addLayer({
-                    'id': 'Woningen',
+                    'id' : 'lots',
                     'type': 'line',
-                    'source': 'testW',
+                    'source': 'lots',
                     'paint': {
-                        'line-color': '#ff0000',
-                        'line-width': 2,
-                        'line-opacity': 0.5
+                        'line-color': '#bf0000',
+                        'line-opacity': 0.75,
+                        'line-width': 1.5  
                     }
-                },'waterway-label');
+                });
 
-                const tileslayer = new Mapbox3DTiles.Mapbox3DTilesLayer( {
-                    id: '3d_models', 
-                    url: 'tileset.json',
-	                color: 0xffffff, 
-		            opacity: 1
-                }, 'waterway-label');
+
+
+                let tileslayer = new Mapbox3DTiles.Mapbox3DTilesLayer( { 
+                    id: 'delaware', 
+                    url: 'tileset.json'
+                } );
                 map.addLayer(tileslayer);
             });
             map.on('mousemove', (event)=>{
