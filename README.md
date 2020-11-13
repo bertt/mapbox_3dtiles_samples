@@ -14,7 +14,7 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/lods
 
 2] Demo MapBox GL JS + referencing external tilesets 
 
-https://bertt.github.io/mapbox_3dtiles_samples/samples/external/trees
+https://bertt.github.io/mapbox_3dtiles_samples/samples/external
 
 Two tilesets are displayed in 1 layer using 'external tileset' technique.
 
