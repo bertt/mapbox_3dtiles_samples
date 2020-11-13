@@ -12,7 +12,7 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/lods
 
 - Demo MapBox GL JS + referencing external tilesets 
 
-https://bertt.github.io/mapbox_3dtiles_samples/samples/external
+https://bertt.github.io/mapbox_3dtiles_samples/samples/external/trees/#17.7/52.074425/5.089727/0/45
 
 - Demo MapBox GL JS + 3D tiles with glTF SpecularGlossiness shader
 
@@ -26,6 +26,15 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/lighting
 
 https://bertt.github.io/mapbox_3dtiles_samples/samples/b3dm
 
+- Deom MapBox GL JS + composite tiles (cmpt)
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/composite/amsterdam
+
+- Demo MapBox GL JS + instanced 3D Tiles (i3dm)
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/instanced/trees
+
+------------------------------------------------------------------------
 
 Not working demo's:
 
@@ -41,6 +50,3 @@ Note: Visualizing 3D Tiles with Draco compression is not working yet :-(
 
 https://bertt.github.io/mapbox_3dtiles_samples/samples/draco.html
 
-- Demo MapBox GL JS + instanced 3D TIles - not working yet :-(
-
-https://bertt.github.io/mapbox_3dtiles_samples/samples/instanced
