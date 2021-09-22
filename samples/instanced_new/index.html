@@ -40,12 +40,20 @@
                 pitch: 45,
                 hash: true
             });
+
+
+            const threedee = new Mapbox3DTiles.Mapbox3DTilesLayer({
+                id: 'tree',
+                tilesets: [
+                    {
+                        id: 'tree',
+                        url: 'tileset.json'
+                    }
+                ]
+            });
+
              map.on('style.load', function() {
-                let tileslayerTree = new Mapbox3DTiles.Mapbox3DTilesLayer( { 
-                    id: 'tree', 
-                    url: 'tileset.json'
-                } );
-                map.addLayer(tileslayerTree, 'waterway-label');
+                map.addLayer(threedee);
 
             });
             map.on('mousemove', (event)=>{
