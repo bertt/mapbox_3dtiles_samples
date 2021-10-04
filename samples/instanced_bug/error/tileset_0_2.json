@@ -64,8 +64,8 @@
     "refine": "REPLACE",
     "boundingVolume": {
       "box": [
-        534777.75,
-        6875642.5,
+        0.0,
+        0.0,
         0.0,
         5000.0,
         0.0,
@@ -79,8 +79,9 @@
       ]
     }
   },
+  "geometricError": 0.0,
   "asset": {
-    "generator": "i3dm.export",
+    "generator": "i3dm.export 1.8.0.0 (https://github.com/geodan/i3dm.export) - 2021",
     "version": "1.0"
   }
 }
