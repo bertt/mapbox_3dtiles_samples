@@ -1,5 +1,32 @@
 # mapbox_3dtiles_samples
 
+## Demo's  MapBox GL JS v3 beta
+
+In MapBox GL JS v3 beta functionality 3D model support is added to the standard library.
+
+Some demo's with it:
+
+1] Load glTF model
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/3dmodel/
+
+![image](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/a391877c-a805-485c-af86-cb9db168c17a)
+
+
+2] 170K trees
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/trees/
+
+![image](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/04ebd034-cfa3-4f3f-9049-f51b909c4694)
+
+3] Batched models
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/b3dm_working/
+
+![image](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/5a4d2ca9-a879-4c02-b2ea-7d004520daf6)
+
+## Classic Demo's using Mapbox3DTiles.js
+
 Repository with some samples of 3D Tiles in a MapBox viewer.
 
 In these demo https://github.com/Geodan/mapbox-3dtiles is used for handling the 3D tiles.
