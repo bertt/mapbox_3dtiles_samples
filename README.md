@@ -21,12 +21,11 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/trees/
 
 3] Batched models
 
-![image](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/5a4d2ca9-a879-4c02-b2ea-7d004520daf6)
-
 https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/b3dm_working/
 
-## Classic Demo's using Mapbox3DTiles.js
+![image](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/5a4d2ca9-a879-4c02-b2ea-7d004520daf6)
 
+## Classic Demo's using Mapbox3DTiles.js
 
 Repository with some samples of 3D Tiles in a MapBox viewer.
 
