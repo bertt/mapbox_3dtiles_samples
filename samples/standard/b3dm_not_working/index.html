@@ -41,11 +41,9 @@ map.addSource('bag-3d', {
 // add the custom style layer to the map
 map.on('style.load', () => {
   map.addLayer({
-    id: 'gl-draw-line',
+    id: 'bag-layer',
     type: 'model',
     source: 'bag-3d',          
-    paint: {
-        }
   });
 });
 
