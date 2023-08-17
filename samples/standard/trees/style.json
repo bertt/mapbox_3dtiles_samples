@@ -16834,7 +16834,7 @@
         }
     ],
     "models": {
-        "treemodel": "https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/trees/tree.glb"
+        "treemodel": "tree.glb"
     },
     "created": "2023-06-20T17:31:18.306Z",
     "modified": "2023-08-01T13:48:01.350Z",
