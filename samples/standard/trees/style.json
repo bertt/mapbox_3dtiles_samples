@@ -6,8 +6,8 @@
             "url":"mapbox://mapbox.mapbox-streets-v8"
         },
         "trees": {
-            "type": "vector",
-            "url": "mapbox://bertt.73s8oh5b"
+            "type": "geojson",
+            "data": "190313_bomen.geojson"
         }
     },
     "models": {
@@ -44,7 +44,6 @@
             "id": "tree-layer",
             "type": "model",
             "source": "trees",
-            "source-layer": "tree-325lef",
             "layout": {
                 "model-id": "tree-model"
             },
