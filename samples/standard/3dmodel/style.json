@@ -1,0 +1,84 @@
+{
+    "version": 8,
+    "sources": {
+        "mapbox": {
+            "type": "vector",
+            "url":"mapbox://mapbox.mapbox-streets-v8"
+        },
+        "building-source": {
+            "type": "geojson",
+            "data": "building.geojson"
+        }
+    },
+    "models": {
+        "building-model": "building.glb"
+    },
+    "layers": [
+        {
+            "id": "background",
+            "type": "background",
+            "paint": {
+                "background-color": "#aaaaaa"
+            }
+        },
+        {
+            "id": "land",
+            "type": "fill",
+            "source": "mapbox",
+            "source-layer": "water",
+            "paint": {
+                "fill-color": "lightblue"
+            }
+        },
+        {
+            "id": "road",
+            "type": "line",
+            "source": "mapbox",
+            "source-layer": "road",
+            "paint": {
+                "line-color": "black",
+                "line-width": 10
+            }
+        },
+        {
+            "id": "building-layer",
+            "type": "model",
+            "source": "building-source",
+            "layout": {
+                "model-id": "building-model"
+            }
+        },
+        {
+            "id": "3d-buildings",
+            "source": "mapbox",
+            "paint": {
+                "fill-extrusion-opacity": 1.0,
+                "fill-extrusion-color": "white",
+                "fill-extrusion-height": [
+                    "number",
+                    [
+                        "get",
+                        "height"
+                    ]
+                ],
+                "fill-extrusion-base": [
+                    "number",
+                    [
+                        "get",
+                        "min_height"
+                    ]
+                ]
+            },
+            "filter": [
+                "==",
+                [
+                    "get",
+                    "extrude"
+                ],
+                "true"
+            ],
+            "source-layer": "building",
+            "type": "fill-extrusion"
+        }
+    ]
+}
