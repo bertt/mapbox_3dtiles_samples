@@ -18,8 +18,8 @@ body { margin: 0; padding: 0; }
 mapboxgl.accessToken = 'pk.eyJ1IjoiYmVydHQiLCJhIjoiaWFvN1Z4USJ9.k04Q6CVms4Gx7KDZxvAx2A';
 const map = new mapboxgl.Map({
 container: 'map',
-zoom: 14,
-center: [5.120616,52.091076],
+zoom: 16,
+center: [-75.528443,39.189],
 pitch: 80,
 bearing: 41,
 // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
@@ -30,10 +30,10 @@ map.on('style.load', () => {
 
 map.addSource('bag-3d', {
         "type": "batched-model",
-        "maxzoom": 14,
-        "minzoom": 14,
+        "maxzoom": 15,
+        "minzoom": 15,
         "tiles": [
-          "https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/b3dm_not_working/tiles/bag-{x}-{y}-{z}.b3dm"
+          "https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/b3dm_not_working/tiles/{z}-{x}-{y}.b3dm"
         ]
       }
 )});
