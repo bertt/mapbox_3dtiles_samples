@@ -10871,7 +10871,7 @@
             },
             "paint": {
                 "model-scale": [10.0, 10.0, 10.0],
-                "model-translation": [0, 0, 5]
+                "model-translation": [0, 0, 1]
             },            
             "source": "trees",
             "source-layer": "tree-325lef",
