@@ -18,8 +18,8 @@ body { margin: 0; padding: 0; }
 mapboxgl.accessToken = 'pk.eyJ1IjoiYmVydHQiLCJhIjoiaWFvN1Z4USJ9.k04Q6CVms4Gx7KDZxvAx2A';
 const map = new mapboxgl.Map({
 container: 'map',
-zoom: 16,
-center: [-75.528443,39.189],
+zoom: 15,
+center: [-75.50710951587615, 39.13787401743954],
 pitch: 80,
 bearing: 41,
 // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
@@ -33,7 +33,7 @@ map.addSource('bag-3d', {
         "maxzoom": 15,
         "minzoom": 15,
         "tiles": [
-          "http://localhost:2015/tiles/{z}-{x}-{y}.glb"
+          "http://localhost:2015/content/{z}-{x}-{y}.b3dm"
         ]
       }
 )});
