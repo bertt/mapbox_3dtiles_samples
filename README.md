@@ -25,6 +25,13 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/b3dm_working/
 
 ![image](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/5a4d2ca9-a879-4c02-b2ea-7d004520daf6)
 
+4] Custom GLB at Dam square
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/dam_square/
+
+![Screenshot 2024-02-27 103820](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/2cdfbcf3-b963-4b22-be6d-42147870b81f)
+
+
 ## Classic Demo's using Mapbox3DTiles.js
 
 Repository with some samples of 3D Tiles in a MapBox viewer.
