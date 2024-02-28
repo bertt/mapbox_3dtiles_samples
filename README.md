@@ -31,6 +31,11 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/dam_square/
 
 ![Screenshot 2024-02-27 103820](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/2cdfbcf3-b963-4b22-be6d-42147870b81f)
 
+5] Delaware buildings
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/delaware/
+
+![image](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/ac464c87-36d8-4220-a483-ca26e0d50df6)
 
 ## Classic Demo's using Mapbox3DTiles.js
 
