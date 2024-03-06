@@ -1,6 +1,6 @@
 # mapbox_3dtiles_samples
 
-## Demo's  MapBox GL JS v3 beta
+## Demo's  MapBox GL JS v3
 
 In MapBox GL JS v3 beta functionality 3D model support is added to the standard library.
 
@@ -36,6 +36,12 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/dam_square/
 https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/delaware/
 
 ![image](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/ac464c87-36d8-4220-a483-ca26e0d50df6)
+
+6] Tienhoven Dutch 3D bag
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/tienhoven/
+
+![image](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/7440b27a-c00f-4ff4-9879-e2844b6aca9c)
 
 ## Classic Demo's using Mapbox3DTiles.js
 
