@@ -43,6 +43,12 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/tienhoven/
 
 ![image](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/7440b27a-c00f-4ff4-9879-e2844b6aca9c)
 
+7] Tiles on multiple levels 15,16,17
+
+https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/multiple_levels
+
+
+
 ## Classic Demo's using Mapbox3DTiles.js
 
 Repository with some samples of 3D Tiles in a MapBox viewer.
