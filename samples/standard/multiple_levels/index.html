@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Add 3D terrain to a map</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<script src='https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css' rel='stylesheet' />
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+ 
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoiYmVydHQiLCJhIjoiaWFvN1Z4USJ9.k04Q6CVms4Gx7KDZxvAx2A';
+const map = new mapboxgl.Map({
+container: 'map',
+zoom: 17,
+center: [ 5.733662,50.789985],
+pitch: 80,
+bearing: -41,
+// Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+style: 'mapbox://styles/mapbox/satellite-streets-v12'
+});
+
+
+map.on('style.load', () => {
+
+map.addSource('mapbox-dem', {
+      'type': 'raster-dem',
+      'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+      'tileSize': 512,
+      'maxzoom': 15
+  });
+  // add the DEM source as a terrain layer with exaggerated height
+  // map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.0 });
+
+});
+
+
+map.on('style.load', () => {
+
+map.addSource('bag-3d', {
+        "type": "batched-model",
+        "maxzoom": 17,
+        "minzoom": 15,
+        "tiles": [
+          "https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/multiple_levels/content/{z}-{x}-{y}.glb"
+        ]
+      }
+)});
+
+// add the custom style layer to the map
+map.on('style.load', () => {
+  map.addLayer({
+    id: 'bag-layer',
+    type: 'model',
+    source: 'bag-3d',          
+  });
+});
+
+</script>
+ 
+</body>
+</html>
