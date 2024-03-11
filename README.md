@@ -47,6 +47,7 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/tienhoven/
 
 https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/multiple_levels
 
+![Screenshot 2024-03-11 144053](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/c67fd415-d83b-4d2d-b668-58f57bc89dec)
 
 
 ## Classic Demo's using Mapbox3DTiles.js
