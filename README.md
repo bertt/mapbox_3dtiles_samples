@@ -13,7 +13,7 @@ https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/3dmodel/
 ![image](https://github.com/bertt/mapbox_3dtiles_samples/assets/538812/a391877c-a805-485c-af86-cb9db168c17a)
 
 
-2] 170K trees
+2] 170K trees (Note load 2 times :-( )
 
 https://bertt.github.io/mapbox_3dtiles_samples/samples/standard/trees/
 
